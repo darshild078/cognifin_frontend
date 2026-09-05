@@ -88,7 +88,6 @@ export default function ChatPage() {
         selectConversation,
         deleteConversation,
         renameConversation,
-        refreshConversations,
     } = useConversations();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -111,6 +110,10 @@ export default function ChatPage() {
 
     // Active session for current chat
     const activeSession = activeId ? sessions[activeId] : null;
+
+    const handleNewChat = useCallback(() => {
+        selectConversation(null);
+    }, [selectConversation]);
 
     // --- Health Check on Mount ---
     useEffect(() => {
@@ -142,7 +145,7 @@ export default function ChatPage() {
         };
         window.addEventListener('keydown', handleKeyboard);
         return () => window.removeEventListener('keydown', handleKeyboard);
-    }, [activeId, deleteConversation]);
+    }, [activeId, deleteConversation, handleNewChat]);
 
     // --- Send Message ---
     const handleSend = useCallback(
@@ -258,10 +261,6 @@ export default function ChatPage() {
             return next;
         });
         toast('PDF session cleared — back to global corpus', { icon: '🗂️', duration: 2000 });
-    };
-
-    const handleNewChat = () => {
-        selectConversation(null);
     };
 
     return (

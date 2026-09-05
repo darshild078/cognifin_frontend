@@ -5,7 +5,7 @@
  * then draws yellow highlight boxes over words matching the chunk snippet.
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, ExternalLink } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
@@ -31,14 +31,15 @@ export default function PDFViewerModal({ pdfUrl, pageNumber, chunkText, onClose 
     const [error, setError] = useState(null);
 
     // Tokenise chunk text into meaningful words for highlight matching
-    const highlightWords = chunkText
-        ? chunkText
-              .replace(/[^a-zA-Z0-9\s₹%.,]/g, ' ')
-              .split(/\s+/)
-              .map(w => w.trim().toLowerCase())
-              .filter(w => w.length > 4)
-              .slice(0, 30) // cap to avoid perf issues with huge snippets
-        : [];
+    const highlightWords = useMemo(() => {
+        if (!chunkText) return [];
+        return chunkText
+            .replace(/[^a-zA-Z0-9\s₹%.,]/g, ' ')
+            .split(/\s+/)
+            .map(w => w.trim().toLowerCase())
+            .filter(w => w.length > 4)
+            .slice(0, 30); // cap to avoid perf issues with huge snippets
+    }, [chunkText]);
 
     // ── Load PDF document once ────────────────────────────────────
     useEffect(() => {
@@ -79,7 +80,7 @@ export default function PDFViewerModal({ pdfUrl, pageNumber, chunkText, onClose 
         // Cancel any in-progress render to avoid "Cannot use the same canvas
         // during multiple render() operations" error
         if (renderTaskRef.current) {
-            try { renderTaskRef.current.cancel(); } catch (_) { /* already done */ }
+            try { renderTaskRef.current.cancel(); } catch { /* already done */ }
             renderTaskRef.current = null;
         }
 

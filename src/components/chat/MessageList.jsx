@@ -354,13 +354,17 @@ function EvidenceChunk({ item }) {
     // (e.g. "content/drive/MyDrive/data/ADANIPORTS/2023.pdf")
     // so we always extract just the last 2 segments: "COMPANY/YEAR.pdf"
     const pdfUrl = (() => {
-        if (!item.pdf_filename) return null;
-        const segments = item.pdf_filename.replace(/\\/g, '/').split('/').filter(Boolean);
+        const rawUrl = item.pdf_url || item.pdf_filename;
+        if (!rawUrl) return null;
+        if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) return rawUrl;
+        const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+        if (rawUrl.startsWith('/')) return `${apiBase}${rawUrl}`;
+        const segments = rawUrl.replace(/\\/g, '/').split('/').filter(Boolean);
         const cleanPath = segments.length >= 2
             ? `${segments[segments.length - 2]}/${segments[segments.length - 1]}`
             : segments[segments.length - 1] || null;
         if (!cleanPath) return null;
-        return `${import.meta.env.VITE_API_BASE || 'http://localhost:8000'}/pdfs/${cleanPath}`;
+        return `${apiBase}/pdfs/${cleanPath}`;
     })();
 
     return (

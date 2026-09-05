@@ -12,10 +12,10 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/auth.css';
 
 export default function AuthCallbackPage() {
-    const [error, setError] = useState('');
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { loginWithToken } = useAuth();
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const token = searchParams.get('token');
@@ -30,16 +30,20 @@ export default function AuthCallbackPage() {
                 no_email: 'No email address found in your Google account.',
                 db_error: 'Server error during login. Please try again.',
             };
-            setError(errorMessages[authError] || 'Authentication failed.');
-            setTimeout(() => navigate('/login', { replace: true }), 3000);
-            return;
+            const timer = setTimeout(() => {
+                setError(errorMessages[authError] || 'Authentication failed.');
+                setTimeout(() => navigate('/login', { replace: true }), 3000);
+            }, 0);
+            return () => clearTimeout(timer);
         }
 
         // Validate required params
         if (!token || !userB64) {
-            setError('Invalid callback — missing token or user data.');
-            setTimeout(() => navigate('/login', { replace: true }), 3000);
-            return;
+            const timer = setTimeout(() => {
+                setError('Invalid callback — missing token or user data.');
+                setTimeout(() => navigate('/login', { replace: true }), 3000);
+            }, 0);
+            return () => clearTimeout(timer);
         }
 
         try {
@@ -54,8 +58,11 @@ export default function AuthCallbackPage() {
             navigate('/chat', { replace: true });
         } catch (err) {
             console.error('Auth callback error:', err);
-            setError('Failed to process authentication. Please try again.');
-            setTimeout(() => navigate('/login', { replace: true }), 3000);
+            const timer = setTimeout(() => {
+                setError('Failed to process authentication. Please try again.');
+                setTimeout(() => navigate('/login', { replace: true }), 3000);
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [searchParams, navigate, loginWithToken]);
 
@@ -76,3 +83,4 @@ export default function AuthCallbackPage() {
         </div>
     );
 }
+

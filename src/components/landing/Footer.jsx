@@ -17,14 +17,14 @@ export default function Footer() {
                     </p>
                 </div>
 
-                {/* Partner Logos */}
+                {/* Tech Stack */}
                 <div className="footer-partners">
-                    <span className="partners-label">Powered by</span>
+                    <span className="partners-label">Built with</span>
                     <div className="partners-list">
-                        <span className="partner-item">OpenAI</span>
+                        <span className="partner-item">FastAPI</span>
                         <span className="partner-item">FAISS</span>
                         <span className="partner-item">React</span>
-                        <span className="partner-item">FastAPI</span>
+                        <span className="partner-item">Vector RAG</span>
                     </div>
                 </div>
 

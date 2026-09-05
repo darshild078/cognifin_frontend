@@ -5,26 +5,22 @@
  * Uses JWT tokens from the backend (replaces old static-credential auth).
  */
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { loginUser as apiLogin, registerUser as apiRegister } from '../api';
 import { saveSession, loadSession, clearSession } from '../utils/auth';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-
-    // Restore session from localStorage on mount
-    useEffect(() => {
+    const [user, setUser] = useState(() => {
         const session = loadSession();
-        if (session?.user && session?.token) {
-            setUser(session.user);
-            setIsAuthenticated(true);
-        }
-        setIsLoading(false);
-    }, []);
+        return session?.user || null;
+    });
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        const session = loadSession();
+        return Boolean(session?.user && session?.token);
+    });
+    const [isLoading] = useState(false);
 
     // Login via backend POST /login
     const login = useCallback(async (email, password) => {
@@ -66,6 +62,7 @@ export function AuthProvider({ children }) {
     );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) throw new Error('useAuth must be used within an AuthProvider');

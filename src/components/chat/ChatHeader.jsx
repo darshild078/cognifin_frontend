@@ -19,7 +19,7 @@ export default function ChatHeader({ onToggleSidebar, sidebarCollapsed }) {
             <div className="chat-header-info">
                 <div className="chat-header-model">
                     <TrendingUp size={11} />
-                    <span>GPT-4o-mini · RAG Pipeline · NIFTY 50 Corpus</span>
+                    <span>AI Analyst · RAG Pipeline · NIFTY 50 Corpus</span>
                 </div>
             </div>
 

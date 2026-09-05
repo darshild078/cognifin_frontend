@@ -1,11 +1,11 @@
 /**
- * FinSight AI - Main App
+ * CogniFin AI - Main App
  * =======================
  * Multi-page application with routing, authentication, and page transitions
  */
 
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion as Motion } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
@@ -51,14 +51,14 @@ function AnimatedRoutes() {
 
 function PageTransition({ children }) {
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       {children}
-    </motion.div>
+    </Motion.div>
   );
 }
 

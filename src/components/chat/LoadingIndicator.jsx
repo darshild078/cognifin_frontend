@@ -63,24 +63,30 @@ export default function LoadingIndicator({ query }) {
     const messages = useMemo(() => buildMessages(query), [query]);
     const [index, setIndex] = useState(0);
     const [visible, setVisible] = useState(true);
+    const [prevQuery, setPrevQuery] = useState(query);
 
-    useEffect(() => {
+    if (query !== prevQuery) {
+        setPrevQuery(query);
         setIndex(0);
         setVisible(true);
-    }, [query]);
+    }
 
     useEffect(() => {
+        let timeoutId;
         const interval = setInterval(() => {
             // Fade out → switch message → fade in
             setVisible(false);
-            setTimeout(() => {
+            timeoutId = setTimeout(() => {
                 setIndex((prev) => (prev + 1) % messages.length);
                 setVisible(true);
             }, 250); // matches CSS fade-out duration
         }, 1500);
 
-        return () => clearInterval(interval);
-    }, [messages.length]);
+        return () => {
+            clearInterval(interval);
+            clearTimeout(timeoutId);
+        };
+    }, [messages]);
 
     return (
         <div className="chat-msg chat-msg-assistant">

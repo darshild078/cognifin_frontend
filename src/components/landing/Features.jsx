@@ -1,5 +1,5 @@
 import { Search, Zap, FileText, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import './../../styles/landing.css';
 
 const features = [
@@ -11,7 +11,7 @@ const features = [
     {
         icon: Zap,
         title: 'AI-Powered Answers',
-        description: 'Get instant, accurate answers powered by GPT-4, grounded in document evidence.'
+        description: 'Get instant, accurate answers powered by state-of-the-art AI, grounded in document evidence.'
     },
     {
         icon: FileText,
@@ -30,7 +30,7 @@ export default function Features() {
         <section className="features-section" id="features">
             <div className="features-container">
                 {/* Section Header */}
-                <motion.div
+                <Motion.div
                     className="features-header"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -44,12 +44,12 @@ export default function Features() {
                     <p className="features-subtitle">
                         Everything you need to extract insights from complex financial documents
                     </p>
-                </motion.div>
+                </Motion.div>
 
                 {/* Feature Grid */}
                 <div className="features-grid">
                     {features.map((feature, index) => (
-                        <motion.div
+                        <Motion.div
                             key={index}
                             className="feature-card"
                             initial={{ opacity: 0, y: 20 }}
@@ -63,10 +63,11 @@ export default function Features() {
                             </div>
                             <h3 className="feature-title">{feature.title}</h3>
                             <p className="feature-description">{feature.description}</p>
-                        </motion.div>
+                        </Motion.div>
                     ))}
                 </div>
             </div>
         </section>
     );
 }
+

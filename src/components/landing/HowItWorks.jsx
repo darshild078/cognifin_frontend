@@ -1,10 +1,10 @@
 /**
  * HowItWorks Section
  * ====================
- * 3-step visual process showing how FinSight AI works.
+ * 3-step visual process showing how CogniFin works.
  */
 
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { Upload, Search, MessageSquare } from 'lucide-react';
 
 const steps = [
@@ -32,7 +32,7 @@ export default function HowItWorks() {
     return (
         <section className="how-it-works-section" id="how-it-works">
             <div className="hiw-container">
-                <motion.div
+                <Motion.div
                     className="hiw-header"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -45,11 +45,11 @@ export default function HowItWorks() {
                     <p className="hiw-subtitle">
                         Three simple steps to unlock insights from any financial document
                     </p>
-                </motion.div>
+                </Motion.div>
 
                 <div className="hiw-steps">
                     {steps.map((item, index) => (
-                        <motion.div
+                        <Motion.div
                             key={index}
                             className="hiw-step"
                             initial={{ opacity: 0, y: 30 }}
@@ -70,10 +70,11 @@ export default function HowItWorks() {
                                     <div className="hiw-connector-line"></div>
                                 </div>
                             )}
-                        </motion.div>
+                        </Motion.div>
                     ))}
                 </div>
             </div>
         </section>
     );
 }
+
