@@ -1,32 +1,17 @@
-/**
- * ChatHeader — shows model info only, no title (title lives in sidebar)
- */
-import { TrendingUp, PanelLeftOpen } from 'lucide-react';
-
-export default function ChatHeader({ onToggleSidebar, sidebarCollapsed }) {
+export default function ChatHeader() {
     return (
         <header className="chat-header">
-            {sidebarCollapsed && (
-                <button
-                    className="chat-header-menu"
-                    onClick={onToggleSidebar}
-                    title="Open sidebar"
-                >
-                    <PanelLeftOpen size={20} />
-                </button>
-            )}
+            <div className="chat-header-left" />
 
-            <div className="chat-header-info">
-                <div className="chat-header-model">
-                    <TrendingUp size={11} />
-                    <span>AI Analyst · RAG Pipeline · NIFTY 50 Corpus</span>
+            <div className="chat-header-center">
+                <div className="chat-header-model-pill" title="Active Model: CogniFin RAG v2.4">
+                    <span className="model-pill-icon">✦</span>
+                    <span className="model-pill-name">CogniFin RAG v2.4</span>
                 </div>
             </div>
 
-            <div className="chat-header-status">
-                <span className="status-dot" />
-                <span>Analyst Ready</span>
-            </div>
+            <div className="chat-header-right" />
         </header>
     );
 }
+

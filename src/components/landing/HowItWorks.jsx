@@ -1,80 +1,55 @@
-/**
- * HowItWorks Section
- * ====================
- * 3-step visual process showing how CogniFin works.
- */
+import { Database, Cpu, FileCheck } from 'lucide-react';
+import './../../styles/landing.css';
 
-import { motion as Motion } from 'framer-motion';
-import { Upload, Search, MessageSquare } from 'lucide-react';
-
-const steps = [
+const PIPELINE_STEPS = [
     {
-        icon: Upload,
-        step: '01',
-        title: 'Upload Document',
-        description: 'Upload your SEBI filing, DRHP, or annual report. We process and index the entire document.',
+        step: 'STAGE 01',
+        icon: Database,
+        title: 'Multi-Vector Ingestion & Indexing',
+        description: 'Annual reports and SEBI disclosures are segmented into semantic chunks with company, fiscal year, and page metadata, indexed across FAISS vector spaces.',
     },
     {
-        icon: Search,
-        step: '02',
-        title: 'Ask Questions',
-        description: 'Ask anything in natural language. Our AI searches through every page to find relevant information.',
+        step: 'STAGE 02',
+        icon: Cpu,
+        title: 'Hybrid Neural Retrieval & Reranking',
+        description: 'Queries trigger parallel dense semantic search and BM25 sparse matching. Results are reranked to surface the most contextually relevant passages.',
     },
     {
-        icon: MessageSquare,
-        step: '03',
-        title: 'Get Grounded Answers',
-        description: 'Receive accurate answers with citations pointing to the exact source sections in the document.',
+        step: 'STAGE 03',
+        icon: FileCheck,
+        title: 'Grounded Evidence Synthesis',
+        description: 'The synthesis engine generates structured financial answers, cross-checked against cited sources with exact page references and confidence scores.',
     },
 ];
 
 export default function HowItWorks() {
     return (
-        <section className="how-it-works-section" id="how-it-works">
-            <div className="hiw-container">
-                <Motion.div
-                    className="hiw-header"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <h2 className="hiw-title">
-                        How It <span className="gradient-text">Works</span>
-                    </h2>
-                    <p className="hiw-subtitle">
-                        Three simple steps to unlock insights from any financial document
+        <section className="pipeline-section" id="pipeline">
+            <div className="landing-container">
+                <div className="section-header">
+                    <span className="section-tag">Architecture</span>
+                    <h2 className="section-title">End-to-End Grounding Pipeline</h2>
+                    <p className="section-desc">
+                        How CogniFin transforms thousands of pages of unstructured financial disclosures into verifiable intelligence.
                     </p>
-                </Motion.div>
+                </div>
 
-                <div className="hiw-steps">
-                    {steps.map((item, index) => (
-                        <Motion.div
-                            key={index}
-                            className="hiw-step"
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: index * 0.15 }}
-                        >
-                            <div className="hiw-step-number">{item.step}</div>
-                            <div className="hiw-step-icon">
-                                <item.icon size={28} />
-                            </div>
-                            <h3 className="hiw-step-title">{item.title}</h3>
-                            <p className="hiw-step-desc">{item.description}</p>
-
-                            {/* Connector line */}
-                            {index < steps.length - 1 && (
-                                <div className="hiw-connector">
-                                    <div className="hiw-connector-line"></div>
+                <div className="pipeline-cards">
+                    {PIPELINE_STEPS.map((item, idx) => {
+                        const Icon = item.icon;
+                        return (
+                            <div key={idx} className="pipeline-step-card">
+                                <span className="step-number">{item.step}</span>
+                                <div className="step-icon-wrap">
+                                    <Icon size={24} />
                                 </div>
-                            )}
-                        </Motion.div>
-                    ))}
+                                <h3 className="step-title">{item.title}</h3>
+                                <p className="step-desc">{item.description}</p>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </section>
     );
 }
-

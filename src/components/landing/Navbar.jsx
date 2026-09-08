@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import './../../styles/landing.css';
 
 export default function Navbar() {
@@ -11,7 +11,6 @@ export default function Navbar() {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -22,59 +21,39 @@ export default function Navbar() {
 
     return (
         <nav className={`landing-nav ${isScrolled ? 'scrolled' : ''}`}>
-            <div className="nav-container">
-                {/* Logo */}
-                <Link to="/" className="nav-logo">
-                    <span className="nav-logo-mark">C</span>
-                    <span className="logo-text">Cognifin</span>
+            <div className="nav-inner">
+                {/* Brand Logo */}
+                <Link to="/" className="nav-brand">
+                    <div className="brand-icon-box">
+                        <span className="brand-symbol">✦</span>
+                    </div>
+                    <span className="brand-title">CogniFin</span>
+                    <span className="brand-badge">RAG v2.4</span>
                 </Link>
 
-                {/* Desktop Navigation Links */}
+                {/* Desktop Nav Links */}
                 <div className="nav-links">
-                    <a href="#features" className="nav-link">
-                        <span>Features</span>
-                        <div className="nav-link-underline"></div>
-                    </a>
-                    <a href="#how-it-works" className="nav-link">
-                        <span>How it Works</span>
-                        <div className="nav-link-underline"></div>
-                    </a>
-                    <a href="#about" className="nav-link">
-                        <span>About</span>
-                        <div className="nav-link-underline"></div>
-                    </a>
+                    <a href="#capabilities" className="nav-item">Capabilities</a>
+                    <a href="#pipeline" className="nav-item">Architecture</a>
+                    <a href="#coverage" className="nav-item">Coverage</a>
                 </div>
 
-                {/* CTA Button */}
-                <Link to="/login" className="nav-cta-btn">
-                    <span>Try for Free</span>
-                    <div className="btn-glow"></div>
-                    <svg className="btn-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M1 8h14M9 2l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </Link>
-
-                {/* Mobile Menu Button */}
-                <button className="mobile-menu-btn" onClick={toggleMobileMenu} aria-label="Toggle menu">
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
-            </div>
-
-            {/* Mobile Menu */}
-            <div className={`mobile-menu ${isMobileMenuOpen ? 'open' : ''}`}>
-                <div className="mobile-menu-content">
-                    <a href="#features" className="mobile-nav-link" onClick={toggleMobileMenu}>
-                        Features
-                    </a>
-                    <a href="#how-it-works" className="mobile-nav-link" onClick={toggleMobileMenu}>
-                        How it Works
-                    </a>
-                    <a href="#about" className="mobile-nav-link" onClick={toggleMobileMenu}>
-                        About
-                    </a>
-                    <Link to="/login" className="mobile-cta-btn" onClick={toggleMobileMenu}>
-                        Try for Free →
+                {/* Nav Actions */}
+                <div className="nav-actions">
+                    <Link to="/login" className="nav-login-btn">
+                        Sign In
                     </Link>
+                    <Link to="/login" className="nav-cta-btn">
+                        <span>Launch Terminal</span>
+                        <ArrowRight size={14} />
+                    </Link>
+                    <button
+                        className="mobile-toggle"
+                        onClick={toggleMobileMenu}
+                        aria-label="Toggle menu"
+                    >
+                        {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                    </button>
                 </div>
             </div>
         </nav>

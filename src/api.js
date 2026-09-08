@@ -74,7 +74,7 @@ export async function registerUser(name, email, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
     });
-    return handleResponse(response, { successToast: true });
+    return handleResponse(response, { successToast: false, errorToast: false });
 }
 
 export async function loginUser(email, password) {
@@ -83,7 +83,7 @@ export async function loginUser(email, password) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
     });
-    return handleResponse(response, { successToast: true });
+    return handleResponse(response, { successToast: false, errorToast: false });
 }
 
 // ── Health ───────────────────────────────────────────────────

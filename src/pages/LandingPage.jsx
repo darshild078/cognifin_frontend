@@ -3,6 +3,7 @@ import Hero from '../components/landing/Hero';
 import Features from '../components/landing/Features';
 import HowItWorks from '../components/landing/HowItWorks';
 import Footer from '../components/landing/Footer';
+import MarketTicker from '../components/landing/MarketTicker';
 import './../styles/landing.css';
 
 export default function LandingPage() {
@@ -13,6 +14,8 @@ export default function LandingPage() {
             <Features />
             <HowItWorks />
             <Footer />
+            <MarketTicker />
         </div>
     );
 }
+

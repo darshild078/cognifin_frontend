@@ -1,6 +1,74 @@
 /* ================================================================
-   Global Styles — FinSight AI
+   CogniFin AI — Luxury Black, Graphite Grey & White Terminal
+   Inspired by Minimalist Institutional Standards & Modern Typography
    ================================================================ */
+
+:root {
+  /* Core Luxury Black & Slate Palette */
+  --bg-base: #060709;
+  --bg-canvas: #090a0d;
+  --bg-surface: #0f1015;
+  --bg-elevated: #15161d;
+  --bg-card: rgba(18, 19, 26, 0.85);
+  --bg-glass: rgba(15, 16, 21, 0.7);
+
+  /* Monochrome Accents */
+  --white: #ffffff;
+  --white-dim: rgba(255, 255, 255, 0.1);
+  --white-border: rgba(255, 255, 255, 0.18);
+  --white-glow: rgba(255, 255, 255, 0.15);
+
+  --slate-100: #f3f4f6;
+  --slate-200: #e5e7eb;
+  --slate-300: #d1d5db;
+  --slate-400: #9ca3af;
+  --slate-500: #6b7280;
+  --slate-600: #4b5563;
+  --slate-700: #374151;
+  --slate-800: #1f2937;
+  --slate-900: #111827;
+
+  /* Monochrome Accents & Micro-Tokens */
+  --emerald: #ffffff;
+  --emerald-light: #f3f4f6;
+  --emerald-dim: rgba(255, 255, 255, 0.08);
+  --emerald-border: rgba(255, 255, 255, 0.18);
+  --emerald-glow: rgba(255, 255, 255, 0.12);
+
+  --cyan: #e5e7eb;
+  --cyan-dim: rgba(255, 255, 255, 0.08);
+  --cyan-border: rgba(255, 255, 255, 0.18);
+
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --amber-border: rgba(245, 158, 11, 0.25);
+
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
+
+  /* Hairline Borders */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
+
+  /* Typography — Plus Jakarta Sans, Outfit & JetBrains Mono */
+  --text-main: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-dim: #52525b;
+
+  --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Fira Code', monospace;
+
+  /* Dimensions & Bezels */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-tablet: 28px;
+  --radius-pill: 9999px;
+}
 
 *,
 *::before,
@@ -14,25 +82,37 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  background-color: var(--bg-base);
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0a0a0a;
-  color: #ffffff;
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-main);
   line-height: 1.6;
+  letter-spacing: -0.011em;
   overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Headings Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(108, 140, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
   color: #ffffff;
 }
 
-/* Scrollbar - Global */
+/* Scrollbar - Luxury Monochrome Theme */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -40,21 +120,21 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* Focus outline for accessibility */
 :focus-visible {
-  outline: 2px solid #6c8cff;
+  outline: 2px solid rgba(255, 255, 255, 0.4);
   outline-offset: 2px;
 }
 
-/* Smooth images */
+/* Images */
 img {
   max-width: 100%;
   display: block;
@@ -64,4 +144,25 @@ img {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* Keyframes */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes ticker-slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes cosmic-ray {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.9); }
+  50% { opacity: 0.8; transform: scaleY(1.1); }
 }

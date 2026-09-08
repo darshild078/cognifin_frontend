@@ -5,32 +5,40 @@ export default function Footer() {
 
     return (
         <footer className="landing-footer">
-            <div className="footer-container">
-                {/* Logo & Description */}
-                <div className="footer-brand">
-                    <div className="footer-logo">
-                        <span className="logo-icon">◈</span>
-                        <span className="logo-text">Cognifin</span>
+            <div className="landing-container">
+                <div className="footer-content">
+                    {/* Brand */}
+                    <div className="footer-brand">
+                        <div className="footer-logo">
+                            <span className="footer-symbol">✦</span>
+                            <span className="footer-brand-title">CogniFin</span>
+                        </div>
+                        <p className="footer-tagline">
+                            Autonomous financial document intelligence & evidence grounding engine for Indian market participants.
+                        </p>
                     </div>
-                    <p className="footer-tagline">
-                        Unlock financial intelligence with AI-powered document analysis
-                    </p>
+
+                    {/* Tech Stack Pills */}
+                    <div className="footer-stack-section">
+                        <div className="footer-stack-heading">
+                            Core Architecture
+                        </div>
+                        <div className="footer-stack-list">
+                            <span className="footer-stack-pill">FastAPI (Python 3.11)</span>
+                            <span className="footer-stack-pill">FAISS Vector Index</span>
+                            <span className="footer-stack-pill">BM25 Sparse Search</span>
+                            <span className="footer-stack-pill">React 19 + Vite</span>
+                            <span className="footer-stack-pill">MongoDB Atlas</span>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Tech Stack */}
-                <div className="footer-partners">
-                    <span className="partners-label">Built with</span>
-                    <div className="partners-list">
-                        <span className="partner-item">FastAPI</span>
-                        <span className="partner-item">FAISS</span>
-                        <span className="partner-item">React</span>
-                        <span className="partner-item">Vector RAG</span>
+                <div className="footer-bottom">
+                    <div>© {currentYear} CogniFin AI. Document Grounding Engine.</div>
+                    <div className="footer-telemetry">
+                        <span className="telemetry-dot" />
+                        <span>System Telemetry: Operational</span>
                     </div>
-                </div>
-
-                {/* Copyright */}
-                <div className="footer-copyright">
-                    <p>© {currentYear} Cognifin. Built for financial analysis.</p>
                 </div>
             </div>
         </footer>

@@ -1,12 +1,5 @@
-/**
- * ChatInput Component
- * ====================
- * Bottom input area for sending messages.
- * Includes PDF upload button that opens an inline form.
- */
-
 import { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, X, Upload } from 'lucide-react';
+import { ArrowUp, Paperclip, X, Upload, Sparkles, Database, Zap } from 'lucide-react';
 
 export default function ChatInput({ onSend, onUpload, isLoading, uploadedFile, onClearUpload }) {
     const [question, setQuestion] = useState('');
@@ -45,7 +38,6 @@ export default function ChatInput({ onSend, onUpload, isLoading, uploadedFile, o
         const file = e.target.files[0];
         if (!file) return;
         setSelectedFile(file);
-        // Auto-fill company name from filename (remove year/ext)
         const name = file.name.replace(/\.[^.]+$/, '').replace(/[\d_-]+/g, ' ').trim();
         if (!companyName) setCompanyName(name);
     };
@@ -157,47 +149,62 @@ export default function ChatInput({ onSend, onUpload, isLoading, uploadedFile, o
                 </div>
             )}
 
-            {/* Main input row */}
+            {/* Main elevated input card */}
             <form className="chat-input-form" onSubmit={handleSubmit}>
                 <div className="chat-input-inner">
-                    <div className="chat-input-wrapper">
-                        {/* Upload trigger */}
-                        <button
-                            type="button"
-                            className={`chat-upload-btn ${uploadedFile ? 'active' : ''}`}
-                            onClick={() => setShowUploadForm(v => !v)}
-                            title={uploadedFile ? 'PDF session active' : 'Upload a PDF for this chat'}
-                            disabled={isLoading}
-                        >
-                            <Paperclip size={16} />
-                        </button>
+                    <div className="chat-input-card">
+                        <div className="chat-input-main-row">
+                            <Sparkles size={16} className="chat-input-sparkle" />
+                            <textarea
+                                ref={textareaRef}
+                                value={question}
+                                onChange={(e) => setQuestion(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder={
+                                    uploadedFile
+                                        ? `Ask about ${uploadedFile} or the global corpus...`
+                                        : 'Ask about financial documents, NIFTY 50 reports, or compare companies...'
+                                }
+                                disabled={isLoading}
+                                rows={1}
+                            />
+                        </div>
 
-                        <textarea
-                            ref={textareaRef}
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            placeholder={
-                                uploadedFile
-                                    ? `Ask about ${uploadedFile} or the global corpus...`
-                                    : 'Ask about the financial document...'
-                            }
-                            disabled={isLoading}
-                            rows={1}
-                        />
-                        <button
-                            type="submit"
-                            className="chat-send-btn"
-                            disabled={isLoading || !question.trim()}
-                            title="Send message"
-                        >
-                            <Send size={18} />
-                        </button>
+                        {/* Bottom Toolbar inside the input card */}
+                        <div className="chat-input-toolbar">
+                            <div className="chat-input-tools-left">
+                                <button
+                                    type="button"
+                                    className={`chat-input-tool-btn ${uploadedFile ? 'active' : ''}`}
+                                    onClick={() => setShowUploadForm(v => !v)}
+                                    title="Upload a PDF for this analysis"
+                                    disabled={isLoading}
+                                >
+                                    <Paperclip size={13} />
+                                    <span>Attach PDF</span>
+                                </button>
+
+                                <div className="chat-input-tool-pill" title="Default NIFTY 50 corporate filings corpus">
+                                    <Database size={11} />
+                                    <span>NIFTY 50</span>
+                                </div>
+
+                                <div className="chat-input-tool-pill" title="Sub-second Hybrid Vector & Lexical RAG">
+                                    <Zap size={11} />
+                                    <span>Deep RAG</span>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className={`chat-send-btn ${question.trim() ? 'can-send' : ''}`}
+                                disabled={isLoading || !question.trim()}
+                                title="Send message (Enter)"
+                            >
+                                <ArrowUp size={17} />
+                            </button>
+                        </div>
                     </div>
-                    <p className="chat-input-hint">
-                        Press Enter to send · Shift+Enter for new line
-                        {uploadedFile && <span className="hint-session"> · PDF session active</span>}
-                    </p>
                 </div>
             </form>
         </div>
