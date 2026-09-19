@@ -115,6 +115,82 @@ export async function askQuestion(question, sessionId = null, conversationId = n
     }
 }
 
+/**
+ * Real-time SSE token streaming for chat answers.
+ */
+export async function streamQuestion({
+    question,
+    sessionId = null,
+    conversationId = null,
+    onToken,
+    onMetadata,
+    onDone,
+    onError,
+    signal,
+}) {
+    const body = { question };
+    if (sessionId) body.session_id = sessionId;
+    if (conversationId) body.conversation_id = conversationId;
+
+    try {
+        const response = await fetch(`${API_BASE}/chat/stream`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify(body),
+            signal,
+        });
+
+        handle401(response);
+
+        if (!response.ok) {
+            let errorMsg = `Stream request failed with status ${response.status}`;
+            try {
+                const json = await response.json();
+                errorMsg = json?.error?.message || json?.message || errorMsg;
+            } catch {}
+            throw new Error(errorMsg);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || !trimmed.startsWith("data: ")) continue;
+
+                const payload = trimmed.slice(6);
+                try {
+                    const parsed = JSON.parse(payload);
+                    if (parsed.event === "token" && onToken) {
+                        onToken(parsed.token);
+                    } else if (parsed.event === "metadata" && onMetadata) {
+                        onMetadata(parsed);
+                    } else if (parsed.event === "done" && onDone) {
+                        onDone(parsed);
+                    } else if (parsed.event === "error" && onError) {
+                        onError(new Error(parsed.error));
+                    }
+                } catch (e) {
+                    console.warn("Failed to parse SSE payload:", payload);
+                }
+            }
+        }
+    } catch (err) {
+        if (onError) onError(err);
+        else throw err;
+    }
+}
+
+
 // ── Retrieval (evidence only) ───────────────────────────────
 
 export async function retrievePassages(query, topK = 5) {

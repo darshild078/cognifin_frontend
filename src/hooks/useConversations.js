@@ -65,55 +65,56 @@ export default function useConversations() {
 
     // ── Start new analysis (deselect active) ─────────────────
     const createConversation = useCallback(() => {
-        // Don't create in DB yet — we'll get a conversation_id back
-        // from the first /chat call. For now, just go to welcome screen.
         setActiveId(null);
         setActiveConversation(null);
-        return null;
+        return { id: null, title: 'New Analysis', messages: [] };
     }, []);
 
-    // ── Add message locally (after /chat returns) ────────────
-    const addMessage = useCallback((convId, role, content, metadata = {}) => {
+    // ── Append message to active conversation ─────────────────
+    const appendMessage = useCallback((convId, message) => {
+        const role = typeof message === 'string' ? 'user' : message.role || 'user';
+        const content = typeof message === 'string' ? message : message.content || '';
+        const metadata = message.metadata || {};
+        const id = message.id || `msg_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+        const timestamp = message.timestamp || new Date().toISOString();
+        const msgObj = { id, role, content, metadata, timestamp };
+
         setActiveConversation((prev) => {
             if (!prev) {
-                // New conversation — create in-memory placeholder
                 return {
                     id: convId || 'pending',
-                    title: role === 'user' ? (content.length > 40 ? content.slice(0, 40) + '...' : content) : 'New Chat',
-                    messages: [
-                        {
-                            id: 'msg_0',
-                            role,
-                            content,
-                            metadata,
-                            timestamp: new Date().toISOString(),
-                        },
-                    ],
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
+                    title: role === 'user' ? (content.length > 40 ? content.slice(0, 40) + '...' : content) : 'New Analysis',
+                    messages: [msgObj],
+                    createdAt: timestamp,
+                    updatedAt: timestamp,
                 };
             }
             return {
                 ...prev,
                 id: convId || prev.id,
-                messages: [
-                    ...prev.messages,
-                    {
-                        id: `msg_${prev.messages.length}`,
-                        role,
-                        content,
-                        metadata,
-                        timestamp: new Date().toISOString(),
-                    },
-                ],
-                updatedAt: new Date().toISOString(),
+                messages: [...(prev.messages || []), msgObj],
+                updatedAt: timestamp,
             };
         });
 
-        // Update activeId if we just got a real conversation_id
         if (convId && convId !== 'pending') {
             setActiveId(convId);
         }
+    }, []);
+
+    // Backward compatibility alias for addMessage
+    const addMessage = useCallback((convId, role, content, metadata = {}) => {
+        appendMessage(convId, { role, content, metadata });
+    }, [appendMessage]);
+
+    // ── Clear active upload in current session ────────────────
+    const clearActiveUpload = useCallback(() => {
+        setActiveConversation((prev) => {
+            if (!prev) return prev;
+            const updated = { ...prev };
+            delete updated.session;
+            return updated;
+        });
     }, []);
 
     // ── Update conversation_id on active conversation ────────
@@ -122,7 +123,6 @@ export default function useConversations() {
         setActiveConversation((prev) =>
             prev ? { ...prev, id: newId } : prev
         );
-        // Refresh the sidebar list
         refreshConversations();
     }, [refreshConversations]);
 
@@ -142,19 +142,32 @@ export default function useConversations() {
 
     // ── Rename a conversation (optimistic + persist) ─────────
     const renameConversation = useCallback(async (id, title) => {
-        // Optimistic local update
         setConversations((prev) =>
             prev.map((c) => (c.id === id ? { ...c, title } : c))
         );
         setActiveConversation((prev) =>
             prev && prev.id === id ? { ...prev, title } : prev
         );
-        // Persist to backend
         try {
             await renameConversationApi(id, title);
         } catch (err) {
             console.error('Failed to persist rename:', err);
         }
+    }, []);
+
+    // ── Update last message in active conversation (for streaming) ─────────
+    const updateLastMessage = useCallback((updater) => {
+        setActiveConversation((prev) => {
+            if (!prev || !prev.messages || prev.messages.length === 0) return prev;
+            const msgs = [...prev.messages];
+            const lastIdx = msgs.length - 1;
+            const updatedMsg = typeof updater === 'function' ? updater(msgs[lastIdx]) : { ...msgs[lastIdx], ...updater };
+            msgs[lastIdx] = updatedMsg;
+            return {
+                ...prev,
+                messages: msgs,
+            };
+        });
     }, []);
 
     return {
@@ -163,7 +176,10 @@ export default function useConversations() {
         activeId,
         isLoadingConversations,
         createConversation,
+        appendMessage,
         addMessage,
+        updateLastMessage,
+        clearActiveUpload,
         setConversationId,
         selectConversation,
         deleteConversation,

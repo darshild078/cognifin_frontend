@@ -15,6 +15,7 @@ import {
     SquarePen, Search, PanelLeftClose, PanelLeftOpen,
     MessageSquare, FileText, Database, Pencil, Trash2, LogOut,
     X, Settings, MoreHorizontal
+    Pencil, Trash2, LogOut, X, Settings, MoreHorizontal
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';

@@ -40,19 +40,22 @@ export default function MessageList({ messages, isLoading, lastQuery, onFollowUp
                     key={msg.id}
                     message={msg}
                     isLatest={index === messages.length - 1}
+                    isStreaming={isLoading && index === messages.length - 1 && msg.role === 'assistant'}
                     onFollowUp={onFollowUp}
                 />
             ))}
 
-            {/* Loading indicator — appears as assistant message */}
-            {isLoading && <LoadingIndicator query={lastQuery} />}
+            {/* Loading indicator — only when there is no assistant placeholder yet */}
+            {isLoading && (!messages.length || messages[messages.length - 1].role === 'user') && (
+                <LoadingIndicator query={lastQuery} />
+            )}
 
             <div ref={bottomRef} />
         </div>
     );
 }
 
-function MessageBubble({ message, isLatest, onFollowUp }) {
+function MessageBubble({ message, isLatest, isStreaming, onFollowUp }) {
     const isUser = message.role === 'user';
     const { user } = useAuth();
     const userName = user?.name || 'You';
@@ -62,31 +65,14 @@ function MessageBubble({ message, isLatest, onFollowUp }) {
     const [showPipeline, setShowPipeline] = useState(false);
     const bubbleRef = useRef(null);
 
-    // ── Typewriter state ──────────────────────────────────────
-    const words = message.content.split(' ');
-    const [displayedCount, setDisplayedCount] = useState(
-        isLatest && !isUser ? 0 : words.length
-    );
-    const isStreaming = displayedCount < words.length;
-    const displayedText = words.slice(0, displayedCount).join(' ');
-
-    useEffect(() => {
-        if (isUser || !isLatest || displayedCount >= words.length) return;
-        const timer = setInterval(() => {
-            setDisplayedCount((prev) => {
-                if (prev >= words.length) { clearInterval(timer); return prev; }
-                return prev + 1;
-            });
-        }, WORD_INTERVAL_MS);
-        return () => clearInterval(timer);
-    }, [isLatest, isUser, words.length]); // eslint-disable-line
+    const contentStr = typeof message?.content === 'string' ? message.content : String(message?.content || '');
 
     // Auto-scroll while streaming
     useEffect(() => {
         if (isStreaming) {
             bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
-    }, [displayedCount, isStreaming]);
+    }, [contentStr, isStreaming]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(message.content);
@@ -126,18 +112,13 @@ function MessageBubble({ message, isLatest, onFollowUp }) {
                     <div className="chat-msg-text">{message.content}</div>
                 ) : (
                     <div className="chat-msg-text chat-msg-markdown">
-                        {isStreaming ? (
-                            /* Plain text while streaming — no markdown rendering */
-                            <>
-                                <span>{displayedText}</span>
-                                <span className="stream-cursor" />
-                            </>
-                        ) : (
-                            /* Full markdown rendering after streaming completes */
+                        {contentStr ? (
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {message.content}
+                                {contentStr}
                             </ReactMarkdown>
-                        )}
+                        ) : isStreaming ? (
+                            <span className="stream-cursor" />
+                        ) : null}
                     </div>
                 )}
 

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { askQuestion, checkHealth, uploadPdf } from '../api';
+import { askQuestion, streamQuestion, checkHealth, uploadPdf } from '../api';
 import useConversations from '../hooks/useConversations';
 import Sidebar from '../components/chat/Sidebar';
 import ChatHeader from '../components/chat/ChatHeader';
@@ -86,7 +86,10 @@ export default function ChatPage() {
         deleteConversation,
         renameConversation,
         appendMessage,
+        updateLastMessage,
         clearActiveUpload,
+        setConversationId,
+        refreshConversations,
     } = useConversations();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -145,11 +148,12 @@ export default function ChatPage() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [createConversation]);
 
-    // ── Send question handler ────────────────────────────────────
+    // ── Send question handler (SSE Token Streaming) ─────────────
     const handleSend = useCallback(
         async (questionText) => {
             if (!questionText.trim() || isLoading) return;
 
+            const text = questionText.trim();
             let convId = activeId;
             if (!convId) {
                 const newConv = createConversation();
@@ -159,48 +163,107 @@ export default function ChatPage() {
             const currentConv = conversations.find((c) => c.id === convId);
             const sessionId = currentConv?.session?.sessionId || null;
 
+            // 1. Add user message
             appendMessage(convId, {
                 id: crypto.randomUUID(),
                 role: 'user',
-                content: questionText.trim(),
+                content: text,
                 timestamp: new Date().toISOString(),
             });
 
-            setLastQuery(questionText.trim());
+            setLastQuery(text);
             setIsLoading(true);
 
+            // 2. Add placeholder assistant message
+            const assistantMsgId = crypto.randomUUID();
+            appendMessage(convId, {
+                id: assistantMsgId,
+                role: 'assistant',
+                content: '',
+                metadata: { evidence: [], citations: [], pipeline: {} },
+                timestamp: new Date().toISOString(),
+            });
+
+            let accumulatedContent = '';
+            let metaData = { evidence: [], citations: [], pipeline: {} };
+
             try {
-                const data = await askQuestion(questionText.trim(), sessionId, convId);
-                appendMessage(convId, {
-                    id: crypto.randomUUID(),
-                    role: 'assistant',
-                    content: data.answer || 'No response generated.',
-                    metadata: {
-                        evidence: data.evidence || [],
-                        citations: data.citations || [],
-                        pipeline: data.pipeline || {},
-                        follow_ups: data.follow_ups || [],
+                await streamQuestion({
+                    question: text,
+                    sessionId,
+                    conversationId: convId,
+                    onMetadata: (data) => {
+                        metaData.evidence = data.evidence || [];
+                        metaData.pipeline = {
+                            ...(metaData.pipeline || {}),
+                            latency_breakdown: { retrieval: data.retrieval_ms },
+                            sources_used: (data.evidence || []).length,
+                        };
+                        updateLastMessage((prev) => ({
+                            ...prev,
+                            metadata: {
+                                ...(prev.metadata || {}),
+                                evidence: metaData.evidence,
+                                pipeline: metaData.pipeline,
+                            },
+                        }));
                     },
-                    timestamp: new Date().toISOString(),
+                    onToken: (token) => {
+                        accumulatedContent += token;
+                        updateLastMessage((prev) => ({
+                            ...prev,
+                            content: accumulatedContent,
+                        }));
+                    },
+                    onDone: (data) => {
+                        metaData.citations = data.citations || [];
+                        metaData.pipeline = {
+                            ...(metaData.pipeline || {}),
+                            confidence: data.confidence,
+                            confidence_label: data.confidence_label,
+                            latency_ms: data.total_ms,
+                            sources_used: metaData.evidence.length,
+                        };
+                        updateLastMessage((prev) => ({
+                            ...prev,
+                            content: accumulatedContent,
+                            metadata: {
+                                ...(prev.metadata || {}),
+                                citations: metaData.citations,
+                                pipeline: metaData.pipeline,
+                                follow_ups: data.follow_ups || [],
+                            },
+                        }));
+
+                        if (data.conversation_id && data.conversation_id !== activeId) {
+                            setConversationId(data.conversation_id);
+                        } else {
+                            refreshConversations();
+                        }
+                    },
+                    onError: (err) => {
+                        console.error('Streaming error:', err);
+                        updateLastMessage((prev) => ({
+                            ...prev,
+                            content: (accumulatedContent ? accumulatedContent + '\n\n' : '') + `⚠️ **Error**: ${err.message || 'Stream connection failed.'}`,
+                        }));
+                    },
                 });
             } catch (err) {
                 const isAborted = err.name === 'AbortError';
                 const errorMsg = isAborted
-                    ? 'Request timed out after 120s. The model may be overloaded.'
+                    ? 'Request timed out. The model may be overloaded.'
                     : err.message || 'Failed to connect to backend.';
 
-                appendMessage(convId, {
-                    id: crypto.randomUUID(),
-                    role: 'assistant',
+                updateLastMessage((prev) => ({
+                    ...prev,
                     content: `⚠️ **Error**: ${errorMsg}\n\nPlease check your backend connection and try again.`,
-                    metadata: { evidence: [], citations: [], pipeline: {} },
-                    timestamp: new Date().toISOString(),
-                });
+                }));
             } finally {
                 setIsLoading(false);
             }
         },
-        [activeId, conversations, isLoading, createConversation, appendMessage]
+        [activeId, conversations, isLoading, createConversation, appendMessage, updateLastMessage, setConversationId, refreshConversations]
     );
 
     // ── Upload handler ───────────────────────────────────────────
